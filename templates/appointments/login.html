@@ -1,0 +1,35 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Sign In{% endblock %}
+{% block content %}
+<div style="min-height: calc(100vh - 68px); display: flex; align-items: center; background: var(--ivory); padding: 3rem 1rem;">
+  <div style="max-width: 420px; width: 100%; margin: 0 auto;">
+    <div class="card">
+      <div class="card-header text-center">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌿</div>
+        <h2 style="font-size: 1.8rem;">Welcome Back</h2>
+        <p class="text-muted" style="font-size: 0.9rem;">Sign in to your account</p>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="Your username" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Your password" required>
+          </div>
+          {% if form.errors %}
+          <div class="alert alert-error">Invalid username or password. Please try again.</div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+        </form>
+        <p class="text-center mt-2" style="font-size:0.9rem; color: var(--text-muted);">
+          Don't have an account? <a href="/register/">Create one</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

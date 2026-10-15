@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin{% endblock %} — Book Your Calm</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div style="font-size:1.8rem; margin-bottom:0.4rem;">🌿</div>
+      <div class="sidebar-user-name">Admin Panel</div>
+      <div class="sidebar-user-role">{{ user.get_full_name|default:user.username }}</div>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin-panel/" {% block nav_dash %}{% endblock %}><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a href="/admin-panel/appointments/" {% block nav_appt %}{% endblock %}><span class="nav-icon">📋</span> Appointments</a></li>
+      <li><a href="/admin-panel/services/" {% block nav_svc %}{% endblock %}><span class="nav-icon">💆</span> Services</a></li>
+      <li><a href="/admin-panel/clients/" {% block nav_clients %}{% endblock %}><span class="nav-icon">👥</span> Clients</a></li>
+      <li><a href="/admin-panel/reports/" {% block nav_reports %}{% endblock %}><span class="nav-icon">📈</span> Reports</a></li>
+      <li style="border-top: 1px solid rgba(255,255,255,0.1); margin-top:1rem; padding-top:0.5rem;">
+        <a href="/"><span class="nav-icon">🌐</span> View Site</a>
+      </li>
+      <li><a href="/logout/"><span class="nav-icon">🚪</span> Logout</a></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" style="margin-bottom:1rem;">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+ {% block extra_js %}{% endblock %}
+</body>
+</html>

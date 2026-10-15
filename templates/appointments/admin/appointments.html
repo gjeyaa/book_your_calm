@@ -1,0 +1,138 @@
+{% extends 'appointments/admin/base_admin.html' %}
+{% load static %} 
+{% block title %}Manage Appointments{% endblock %}
+{% block nav_appt %}class="active"{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+  <div>
+    <h2>Appointments</h2>
+    <p class="text-muted">Manage all client bookings</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-body">
+    <form method="get" style="display:flex; gap:1rem; flex-wrap:wrap; align-items:end;">
+      <div class="form-group" style="margin:0; flex:1; min-width:140px;">
+        <label class="form-label">Status</label>{{ filter_form.status }}
+      </div>
+      <div class="form-group" style="margin:0; flex:1; min-width:140px;">
+        <label class="form-label">From</label>{{ filter_form.date_from }}
+      </div>
+      <div class="form-group" style="margin:0; flex:1; min-width:140px;">
+        <label class="form-label">To</label>{{ filter_form.date_to }}
+      </div>
+      <div class="form-group" style="margin:0; flex:2; min-width:180px;">
+        <label class="form-label">Search</label>{{ filter_form.search }}
+      </div>
+      <div style="display:flex; gap:0.5rem;">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="/admin-panel/appointments/" class="btn btn-outline">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Client</th><th>Service</th><th>Therapist</th>
+        <th>Date & Time</th><th>Price</th><th>Status</th><th>Payment</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appt in page_obj %}
+      <tr>
+        <td style="color:var(--text-muted); font-size:0.82rem;">#{{ appt.pk }}</td>
+        <td>
+          <div style="font-weight:500;">{{ appt.client.get_full_name|default:appt.client.username }}</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">{{ appt.client.email }}</div>
+        </td>
+        <td>
+          <div>{{ appt.service.name }}</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">{{ appt.service.duration_minutes }} min</div>
+        </td>
+        <td>{{ appt.therapist.name|default:"—" }}</td>
+        <td>
+          <div>{{ appt.appointment_date }}</div>
+          <div style="font-size:0.78rem; color:var(--text-muted);">{{ appt.appointment_time|time:"g:i A" }}</div>
+        </td>
+        <td>₱{{ appt.total_price }}</td>
+        <td><span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+        <td><span class="badge badge-{{ appt.payment_status }}">{{ appt.get_payment_status_display }}</span></td>
+       <td>
+  <button data-id="{{ appt.pk }}" 
+          data-status="{{ appt.status }}" 
+          data-payment="{{ appt.payment_status }}"
+          onclick="openUpdateModal(this.dataset.id, this.dataset.status, this.dataset.payment)"
+          class="btn btn-sm btn-sage">Update</button>
+</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="text-center" style="padding:3rem; color:var(--text-muted);">No appointments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+  <span style="font-size:0.88rem; color:var(--text-muted);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+</div>
+{% endif %}
+
+<!-- Update Modal -->
+<div id="update-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:420px; width:90%; margin:1rem;">
+    <div class="card-header"><h3>Update Appointment</h3></div>
+    <div class="card-body">
+      <form method="post" id="update-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Appointment Status</label>
+          <select name="status" id="modal-status" class="form-control">
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Status</label>
+          <select name="payment_status" id="modal-payment" class="form-control">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" onclick="closeModal()" class="btn btn-outline">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openUpdateModal(id, status, payment) {
+  document.getElementById('update-form').action = `/admin-panel/appointments/${id}/update/`;
+  document.getElementById('modal-status').value = status;
+  document.getElementById('modal-payment').value = payment;
+  document.getElementById('update-modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('update-modal').style.display = 'none';
+}
+
+document.getElementById('update-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+{% endblock %}

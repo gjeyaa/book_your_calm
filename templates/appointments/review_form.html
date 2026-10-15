@@ -1,0 +1,28 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Leave a Review{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:3rem; padding-bottom:3rem; max-width:560px;">
+  <div class="card">
+    <div class="card-header text-center">
+      <div style="font-size:2.5rem;">⭐</div>
+      <h2>How was your session?</h2>
+      <p class="text-muted">{{ appointment.service.name }} on {{ appointment.appointment_date }}</p>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Rating</label>
+          {{ form.rating }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Review</label>
+          {{ form.comment }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Submit Review</button>
+        <a href="/my-appointments/" class="btn btn-outline btn-block" style="margin-top:0.75rem;">Skip for Now</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

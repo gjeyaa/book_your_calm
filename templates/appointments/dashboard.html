@@ -1,0 +1,140 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+<div class="sidebar-user">
+  {% if user.userprofile.profile_picture %}
+    <img src="{{ user.userprofile.profile_picture.url }}"
+         alt="Profile Picture"
+         style="width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:0.5rem;">
+  {% else %}
+    <div style="font-size:2rem; margin-bottom:0.5rem;">👤</div>
+  {% endif %}
+  <div class="sidebar-user-name">{{ user.get_full_name|default:user.username }}</div>
+  <div class="sidebar-user-role">Client</div>
+</div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard/" class="active"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="/book/"><span class="nav-icon">📅</span> Book Appointment</a></li>
+      <li><a href="/my-appointments/"><span class="nav-icon">📋</span> My Appointments</a></li>
+      <li><a href="/services/"><span class="nav-icon">💆</span> Services</a></li>
+      <li><a href="/notifications/"><span class="nav-icon">🔔</span> Notifications {% if unread_notifs %}<span class="badge" style="background:var(--gold); color:white; margin-left:4px;">{{ unread_notifs }}</span>{% endif %}</a></li>
+      <li><a href="/profile/"><span class="nav-icon">⚙️</span> Profile</a></li>
+      <li><a href="/logout/"><span class="nav-icon">🚪</span> Logout</a></li>
+    </ul>
+  </aside>
+
+
+  <main class="main-content">
+    <div style="margin-bottom: 2rem;">
+      <h2>Good day, {{ user.first_name|default:user.username }}! 🌿</h2>
+      <p class="text-muted">Here's your wellness overview.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-icon">📅</div>
+        <div class="stat-card-value">{{ total_appointments }}</div>
+        <div class="stat-card-label">Total Bookings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">⏳</div>
+        <div class="stat-card-value">{{ upcoming|length }}</div>
+        <div class="stat-card-label">Upcoming Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">✅</div>
+        <div class="stat-card-value">{{ past|length }}</div>
+        <div class="stat-card-label">Past Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">🔔</div>
+        <div class="stat-card-value">{{ unread_notifs }}</div>
+        <div class="stat-card-label">Unread Notifications</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap: 2rem;">
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3>Upcoming Appointments</h3>
+          <a href="/book/" class="btn btn-sm btn-primary">+ Book New</a>
+        </div>
+        {% if upcoming %}
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          {% for appt in upcoming %}
+          <div class="card">
+            <div class="card-body" style="padding: 1rem 1.25rem;">
+              <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>
+                  <div style="font-weight:500;">{{ appt.service.name }}</div>
+                  <div style="font-size:0.85rem; color:var(--text-muted);">
+                    📅 {{ appt.appointment_date }} at {{ appt.appointment_time|time:"g:i A" }}
+                  </div>
+                  {% if appt.therapist %}<div style="font-size:0.82rem; color:var(--text-secondary);">with {{ appt.therapist.name }}</div>{% endif %}
+                </div>
+                <span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding: 2rem;">
+          <div class="empty-state-icon">📅</div>
+          <h3>No upcoming sessions</h3>
+          <p>Book your first massage appointment!</p>
+          <a href="/book/" class="btn btn-primary mt-2">Book Now</a>
+        </div>
+        {% endif %}
+      </div>
+
+
+      <div>
+        <h3 style="margin-bottom: 1rem;">Quick Actions</h3>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <a href="/book/" class="card" style="text-decoration:none;">
+            <div class="card-body" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem;">
+              <div style="font-size:1.8rem;">📅</div>
+              <div>
+                <div style="font-weight:500;">Book Appointment</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">Schedule your next session</div>
+              </div>
+            </div>
+          </a>
+          <a href="/my-appointments/" class="card" style="text-decoration:none;">
+            <div class="card-body" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem;">
+              <div style="font-size:1.8rem;">📋</div>
+              <div>
+                <div style="font-weight:500;">My Appointments</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">View and manage bookings</div>
+              </div>
+            </div>
+          </a>
+          <a href="/profile/" class="card" style="text-decoration:none;">
+            <div class="card-body" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem;">
+              <div style="font-size:1.8rem;">⚙️</div>
+              <div>
+                <div style="font-weight:500;">Update Profile</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">Manage your account settings</div>
+              </div>
+            </div>
+          </a>
+          <a href="/services/" class="card" style="text-decoration:none;">
+            <div class="card-body" style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem;">
+              <div style="font-size:1.8rem;">💆</div>
+              <div>
+                <div style="font-weight:500;">Explore Services</div>
+                <div style="font-size:0.82rem; color:var(--text-muted);">Browse our massage menu</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

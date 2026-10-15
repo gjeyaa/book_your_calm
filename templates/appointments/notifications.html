@@ -1,0 +1,30 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Notifications</h1>
+  <p>Your latest updates and alerts</p>
+</div>
+<div class="container" style="padding-top:2rem; padding-bottom:3rem; max-width:700px;">
+  <div class="card">
+    {% if notifications %}
+    {% for notif in notifications %}
+    <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+      <div class="notif-dot" {% if notif.is_read %}style="background:var(--border);"{% endif %}></div>
+      <div>
+        <div class="notif-title">{{ notif.title }}</div>
+        <div class="notif-msg">{{ notif.message }}</div>
+        <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state" style="padding:3rem;">
+      <div class="empty-state-icon">🔔</div>
+      <h3>No notifications yet</h3>
+      <p>We'll notify you about your appointments here.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

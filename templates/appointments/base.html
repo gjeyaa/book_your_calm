@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Book Your Calm{% endblock %} — Massage Appointment System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="navbar-brand" href="/">🌿 Book Your <span>Calm</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/services/">Services</a></li>
+    <li><a href="/therapists/">Therapists</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="/book/">Book Now</a></li>
+    {% endif %}
+  </ul>
+  <div class="nav-actions">
+    {% if user.is_authenticated %}
+      <a href="/notifications/" class="notif-badge" title="Notifications">
+        🔔
+        {% with unread=user.notifications.filter %}
+          {% with count=user.notifications.all|length %}
+            {% if count > 0 %}<span class="badge-count">!</span>{% endif %}
+          {% endwith %}
+        {% endwith %}
+      </a>
+      {% if user.is_staff %}
+        <a href="/admin-panel/" class="btn btn-sm btn-sage">Admin Panel</a>
+      {% endif %}
+      <a href="/dashboard/" class="btn btn-sm btn-outline">Dashboard</a>
+      <a href="/logout/" class="btn btn-sm btn-primary">Logout</a>
+    {% else %}
+      <a href="/login/" class="btn btn-sm btn-outline">Login</a>
+      <a href="/register/" class="btn btn-sm btn-primary">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Messages -->
+{% if messages %}
+<div style="padding: 0 2rem; margin-top: 1rem;">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {% if message.tags == 'success' %}✓{% elif message.tags == 'error' %}✗{% else %}ℹ{% endif %}
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">🌿 Book Your Calm</div>
+      <p style="font-size:0.88rem; max-width:240px;">Your sanctuary for relaxation and therapeutic massage. Book your calm today.</p>
+    </div>
+    <div>
+      <h4>Services</h4>
+      <ul>
+        <li><a href="/services/?category=relaxation">Relaxation Massage</a></li>
+        <li><a href="/services/?category=therapeutic">Therapeutic Massage</a></li>
+        <li><a href="/services/?category=specialty">Specialty Services</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="/book/">Book Appointment</a></li>
+        <li><a href="/therapists/">Our Therapists</a></li>
+        <li><a href="/dashboard/">My Dashboard</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Hours</h4>
+      <p style="font-size:0.88rem;">Mon–Sat: 9:00 AM – 6:00 PM<br>Sunday: Closed</p>
+      <p style="font-size:0.88rem; margin-top:0.75rem;">📍 Cebu City, Philippines<br>📞 +63 69 392 2590</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Book Your Calm. All rights reserved. | Massage Appointment System</p>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

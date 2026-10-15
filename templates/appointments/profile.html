@@ -1,0 +1,84 @@
+{% extends 'appointments/base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>My Profile</h1>
+  <p>Manage your account information and preferences</p>
+</div>
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem; max-width: 700px;">
+  <div class="card">
+    <div class="card-header">
+      <h3>Personal Information</h3>
+    </div>
+    <div class="card-body">
+
+ 
+      <div style="text-align:center; margin-bottom:1.5rem;">
+        {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" 
+               alt="Profile Picture"
+               style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--sage);">
+        {% else %}
+          <div style="width:100px; height:100px; border-radius:50%; background:#ccc; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:2.5rem;">
+            👤
+          </div>
+        {% endif %}
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">
+          {{ request.user.get_full_name|default:request.user.username }}
+        </p>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            {{ form.first_name }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          {{ form.phone }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          {{ form.address }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          {{ form.date_of_birth }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Medical Notes / Allergies</label>
+          {{ form.medical_notes }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profile Picture</label>
+          {{ form.profile_picture }}
+          {% if profile.profile_picture %}
+            <small class="text-muted">Current: {{ profile.profile_picture.name }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <div class="form-check">
+            {{ form.email_notifications }}
+            <label class="form-label" style="margin:0;">Email Notifications</label>
+          </div>
+        </div>
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <a href="/dashboard/" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

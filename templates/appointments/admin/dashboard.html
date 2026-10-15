@@ -1,0 +1,95 @@
+{% extends 'appointments/admin/base_admin.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block nav_dash %}class="active"{% endblock %}
+{% block content %}
+<div style="margin-bottom:2rem;">
+  <h2>Dashboard Overview</h2>
+  <p class="text-muted">Welcome back, {{ user.first_name|default:user.username }}!</p>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-icon">📅</div>
+    <div class="stat-card-value">{{ total_appointments }}</div>
+    <div class="stat-card-label">Total Appointments</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon">📆</div>
+    <div class="stat-card-value">{{ today_appointments }}</div>
+    <div class="stat-card-label">Today's Sessions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon">💰</div>
+    <div class="stat-card-value">₱{{ total_revenue|floatformat:"0" }}</div>
+    <div class="stat-card-label">Total Revenue</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon">⏳</div>
+    <div class="stat-card-value">{{ pending_count }}</div>
+    <div class="stat-card-label">Pending Approval</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-icon">👥</div>
+    <div class="stat-card-value">{{ total_clients }}</div>
+    <div class="stat-card-label">Registered Clients</div>
+  </div>
+</div>
+
+<div class="grid-2" style="gap:2rem;">
+  <div class="card">
+    <div class="card-header"><h3>Monthly Bookings</h3></div>
+    <div class="card-body">
+      <canvas id="monthlyChart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Recent Appointments</h3>
+        <a href="/admin-panel/appointments/" class="btn btn-sm btn-outline">View All</a>
+      </div>
+    </div>
+    <div style="overflow:hidden;">
+      <table>
+        <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for appt in recent_appointments %}
+          <tr>
+            <td>{{ appt.client.get_full_name|default:appt.client.username }}</td>
+            <td style="font-size:0.82rem;">{{ appt.service.name }}</td>
+            <td style="font-size:0.82rem;">{{ appt.appointment_date }}</td>
+            <td><span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const monthlyData = {{ monthly_data|safe }};
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: monthlyData.map(d => d.month),
+    datasets: [{
+      label: 'Bookings',
+      data: monthlyData.map(d => d.count),
+      backgroundColor: '#7A9E7E',
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endblock %}

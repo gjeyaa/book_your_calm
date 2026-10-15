@@ -1,0 +1,37 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Our Therapists{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Our Therapists</h1>
+  <p>Meet our certified massage therapy team</p>
+</div>
+<div class="container section">
+  <div class="grid-4">
+    {% for t in therapists %}
+    <div class="therapist-card">
+      <div class="therapist-avatar">👤</div>
+      <h4>{{ t.name }}</h4>
+      <div class="therapist-exp">{{ t.years_experience }} yrs experience</div>
+      <div class="therapist-rating" style="margin:0.5rem 0; font-size:1.1rem;">
+        {% for i in "12345" %}{% if forloop.counter <= t.rating|floatformat:"0"|add:"0" %}★{% else %}☆{% endif %}{% endfor %}
+        <span style="font-size:0.8rem; color:var(--text-muted);">{{ t.rating }}/5</span>
+      </div>
+      {% if t.bio %}<p style="font-size:0.85rem; color:var(--text-secondary);">{{ t.bio }}</p>{% endif %}
+      {% if t.specializations.exists %}
+      <div style="margin-top:1rem;">
+        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--sage); margin-bottom:0.5rem;">Specializations</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.4rem; justify-content:center;">
+          {% for spec in t.specializations.all %}
+          <span class="badge badge-confirmed">{{ spec.name }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      <a href="/book/" class="btn btn-outline btn-sm" style="margin-top:1rem;">Book with {{ t.name }}</a>
+    </div>
+    {% empty %}
+    <div class="empty-state"><h3>No therapists available</h3></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

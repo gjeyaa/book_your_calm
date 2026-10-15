@@ -1,0 +1,136 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Book Appointment{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Book Your Session</h1>
+  <p>Choose your service, therapist, and preferred time</p>
+</div>
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3rem;">
+  <form method="post" id="booking-form">
+    {% csrf_token %}
+    <div class="booking-layout">
+      <div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header"><h3>1. Choose Service</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Massage Service *</label>
+              {{ form.service }}
+              {% if form.service.errors %}<div class="form-error">{{ form.service.errors.0 }}</div>{% endif %}
+            </div>
+         
+            <div id="service-info" class="alert alert-info" style="display:none;">
+              <div><strong id="service-name"></strong></div>
+              <div style="font-size:0.85rem;">Duration: <span id="service-duration"></span> min | Price: ₱<span id="service-price"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header"><h3>2. Select Therapist</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Preferred Therapist</label>
+              {{ form.therapist }}
+              <small class="text-muted">Leave as "No Preference" and we'll assign the best available therapist.</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header"><h3>3. Pick Date & Time</h3></div>
+          <div class="card-body">
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Date *</label>
+                {{ form.appointment_date }}
+                {% if form.appointment_date.errors %}<div class="form-error">{{ form.appointment_date.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="form-group">
+                <label class="form-label">Time *</label>
+                {{ form.appointment_time }}
+                {% if form.appointment_time.errors %}<div class="form-error">{{ form.appointment_time.errors.0 }}</div>{% endif %}
+              </div>
+            </div>
+            <small class="text-muted">⏰ Available: Mon–Sat, 9:00 AM – 6:00 PM</small>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>4. Special Notes</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Notes / Special Requests</label>
+              {{ form.notes }}
+              {% if form.notes.errors %}<div class="form-error">{{ form.notes.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div>
+        <div class="price-preview">
+          <div class="price-preview-title">Booking Summary</div>
+          <div id="summary-service" style="display:none;">
+            <div class="price-line">
+              <span>Service</span>
+              <span id="sum-service-name" style="font-weight:500; text-align:right; max-width:150px;"></span>
+            </div>
+            <div class="price-line">
+              <span>Duration</span>
+              <span id="sum-duration"></span>
+            </div>
+            <div class="price-line total">
+              <span>Total</span>
+              <span>₱<span id="sum-price">0.00</span></span>
+            </div>
+          </div>
+          <div id="summary-placeholder" class="text-muted" style="font-size:0.9rem; text-align:center; padding: 1rem 0;">
+            Select a service to see pricing
+          </div>
+          <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">
+              <div>✓ Free cancellation (24hr notice)</div>
+              <div>✓ No deposit required</div>
+              <div>✓ Certified therapists</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Confirm Booking</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const serviceSelect = document.getElementById('service-select');
+if (serviceSelect) {
+  serviceSelect.addEventListener('change', function() {
+    const serviceId = this.value;
+    if (!serviceId) {
+      document.getElementById('service-info').style.display = 'none';
+      document.getElementById('summary-service').style.display = 'none';
+      document.getElementById('summary-placeholder').style.display = 'block';
+      return;
+    }
+    fetch(`/api/service/${serviceId}/price/`)
+      .then(r => r.json())
+      .then(data => {
+        const name = serviceSelect.options[serviceSelect.selectedIndex].text;
+        document.getElementById('service-name').textContent = name;
+        document.getElementById('service-duration').textContent = data.duration;
+        document.getElementById('service-price').textContent = parseFloat(data.price).toFixed(2);
+        document.getElementById('service-info').style.display = 'flex';
+        document.getElementById('sum-service-name').textContent = name.split('(')[0].trim();
+        document.getElementById('sum-duration').textContent = data.duration + ' min';
+        document.getElementById('sum-price').textContent = parseFloat(data.price).toFixed(2);
+        document.getElementById('summary-service').style.display = 'block';
+        document.getElementById('summary-placeholder').style.display = 'none';
+      });
+  });
+  if (serviceSelect.value) serviceSelect.dispatchEvent(new Event('change'));
+}
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends 'appointments/base.html' %}
+{% block title %}My Appointments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>My Appointments</h1>
+  <p>View and manage all your massage sessions</p>
+</div>
+<div class="container" style="padding-top: 2rem; padding-bottom: 3rem;">
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-body">
+      <form method="get" style="display:flex; gap:1rem; flex-wrap:wrap; align-items:end;">
+        <div class="form-group" style="margin:0; flex:1; min-width:160px;">
+          <label class="form-label">Status</label>
+          {{ filter_form.status }}
+        </div>
+        <div class="form-group" style="margin:0; flex:1; min-width:160px;">
+          <label class="form-label">From</label>
+          {{ filter_form.date_from }}
+        </div>
+        <div class="form-group" style="margin:0; flex:1; min-width:160px;">
+          <label class="form-label">To</label>
+          {{ filter_form.date_to }}
+        </div>
+        <div class="form-group" style="margin:0; flex:2; min-width:200px;">
+          <label class="form-label">Search</label>
+          {{ filter_form.search }}
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button type="submit" class="btn btn-primary">Filter</button>
+          <a href="/my-appointments/" class="btn btn-outline">Clear</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if page_obj.object_list %}
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Therapist</th>
+          <th>Date & Time</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for appt in page_obj %}
+        <tr>
+          <td>
+            <div style="font-weight:500;">{{ appt.service.name }}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">{{ appt.service.duration_minutes }} min</div>
+          </td>
+          <td>{{ appt.therapist.name|default:"Not assigned" }}</td>
+          <td>
+            <div>{{ appt.appointment_date }}</div>
+            <div style="font-size:0.82rem; color:var(--text-muted);">{{ appt.appointment_time|time:"g:i A" }}</div>
+          </td>
+          <td style="font-weight:500;">₱{{ appt.total_price }}</td>
+          <td><span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+          <td><span class="badge badge-{{ appt.payment_status }}">{{ appt.get_payment_status_display }}</span></td>
+          <td>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              {% if appt.status in 'pending,confirmed' and appt.appointment_date >= today %}
+              <button onclick="cancelModal({ appt,pk })" class="btn btn-sm btn-danger">Cancel</button>
+              {% endif %}
+              {% if appt.status == 'completed' and appt.pk not in reviewed_ids %}
+              <a href="/appointments/{{ appt.pk }}/review/" class="btn btn-sm btn-gold">Review</a>
+              {% endif %}
+              {% if appt.status == 'completed' and appt.pk in reviewed_ids %}
+              <span style="font-size:0.8rem; color:var(--text-muted);">Reviewed ✓</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+ 
+  {% if page_obj.has_other_pages %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>
+    {% endif %}
+    <span style="font-size:0.88rem; color:var(--text-muted);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📅</div>
+    <h3>No appointments found</h3>
+    <p>Try adjusting your filters or book a new session.</p>
+    <a href="/book/" class="btn btn-primary mt-2">Book Now</a>
+  </div>
+  {% endif %}
+</div>
+
+
+<div id="cancel-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:400px; width:90%; margin:1rem;">
+    <div class="card-header"><h3>Cancel Appointment</h3></div>
+    <div class="card-body">
+      <p style="margin-bottom:1rem; color:var(--text-secondary);">Are you sure you want to cancel this appointment?</p>
+      <form method="post" id="cancel-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Reason (optional)</label>
+          <textarea name="reason" class="form-control" rows="3" placeholder="Why are you cancelling?"></textarea>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+          <button type="button" onclick="closeModal()" class="btn btn-outline">Keep Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const today = '{{ today }}';
+function cancelModal(id) {
+  document.getElementById('cancel-form').action = `/appointments/${id}/cancel/`;
+  document.getElementById('cancel-modal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('cancel-modal').style.display = 'none';
+}
+</script>
+{% endblock %}

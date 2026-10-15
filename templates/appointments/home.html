@@ -1,0 +1,166 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+
+
+<section class="hero">
+  <div class="fade-in">
+    <div class="hero-eyebrow">Premium Massage Services</div>
+    <h1>Find Your<br><em>Inner Calm</em><br>Here</h1>
+    <p class="hero-desc">Book personalized massage therapy sessions with certified therapists. Relax, restore, and renew — all in a few clicks.</p>
+    <div class="hero-actions">
+      <a href="/book/" class="btn btn-primary btn-lg">Book a Session</a>
+      <a href="/services/" class="btn btn-outline btn-lg">View Services</a>
+    </div>
+  </div>
+  <div class="hero-visual fade-in fade-in-delay-2">
+    <div class="hero-circle">🌿</div>
+    <div class="hero-floating hero-floating-1">
+      <div class="hero-floating-stat">500+</div>
+      <div class="hero-floating-label">Happy Clients</div>
+    </div>
+    <div class="hero-floating hero-floating-2">
+      <div class="hero-floating-stat">4.9★</div>
+      <div class="hero-floating-label">Average Rating</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background: white;">
+  <div class="section-header fade-in">
+    <div class="section-eyebrow">What We Offer</div>
+    <h2>Our Signature Services</h2>
+    <div class="section-divider"></div>
+  </div>
+  <div class="container">
+    <div class="service-grid">
+      {% for service in services %}
+      <div class="service-card fade-in">
+        <div class="service-card-img">
+          {% if service.category == 'relaxation' %}🛁
+          {% elif service.category == 'therapeutic' %}💆
+          {% else %}✨{% endif %}
+        </div>
+        <div class="service-card-body">
+          <div class="service-card-category">{{ service.get_category_display }}</div>
+          <h3 style="margin: 0.25rem 0 0.5rem;">{{ service.name }}</h3>
+          <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">{{ service.description|truncatechars:80 }}</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <div class="service-card-price">₱{{ service.price }}</div>
+              <div class="service-duration">⏱ {{ service.duration_minutes }} minutes</div>
+            </div>
+            <a href="/book/?service={{ service.pk }}" class="btn btn-sm btn-sage">Book Now</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No services available at the moment.</p>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-3">
+      <a href="/services/" class="btn btn-outline">View All Services</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" style="background: var(--ivory);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Why Book With Us</div>
+      <h2>The Book Your Calm Difference</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="grid-4">
+      {% for item in "1234" %}
+      <div class="card text-center fade-in">
+        <div class="card-body">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">
+            {% if forloop.counter == 1 %}🏆{% elif forloop.counter == 2 %}📅{% elif forloop.counter == 3 %}💆{% else %}⭐{% endif %}
+          </div>
+          <h4>
+            {% if forloop.counter == 1 %}Certified Therapists
+            {% elif forloop.counter == 2 %}Easy Booking
+            {% elif forloop.counter == 3 %}Personalized Care
+            {% else %}Top Rated{% endif %}
+          </h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); margin-top:0.5rem;">
+            {% if forloop.counter == 1 %}All our therapists are licensed and certified with years of experience.
+            {% elif forloop.counter == 2 %}Book your appointment online in under 2 minutes, anytime.
+            {% elif forloop.counter == 3 %}Every session tailored to your unique wellness needs.
+            {% else %}Consistently rated 4.9/5 by our valued clients.{% endif %}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+{% if therapists %}
+<section class="section" style="background: white;">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Meet The Team</div>
+      <h2>Our Expert Therapists</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="grid-4">
+      {% for t in therapists %}
+      <div class="therapist-card fade-in">
+        <div class="therapist-avatar">👤</div>
+        <h4>{{ t.name }}</h4>
+        <div class="therapist-exp">{{ t.years_experience }} years experience</div>
+        <div class="therapist-rating" style="margin:0.5rem 0;">
+          {% for i in "12345" %}
+            {% if forloop.counter <= t.rating %}★{% else %}☆{% endif %}
+          {% endfor %}
+          <span style="font-size:0.8rem; color:var(--text-muted);">({{ t.rating }})</span>
+        </div>
+        {% if t.bio %}<p style="font-size:0.85rem; color:var(--text-secondary);">{{ t.bio|truncatechars:80 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+{% if reviews %}
+<section class="section" style="background: var(--ivory);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Client Testimonials</div>
+      <h2>What Our Clients Say</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="grid-3">
+      {% for review in reviews %}
+      <div class="review-card fade-in">
+        <div class="review-stars">
+          {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+        </div>
+        <p style="margin:0.75rem 0; font-size:0.92rem; color:var(--text-secondary); font-style:italic;">"{{ review.comment|truncatechars:120 }}"</p>
+        <div class="review-author">
+          — {{ review.client.get_full_name|default:review.client.username }}
+          {% if review.therapist %} · with {{ review.therapist.name }}{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<section style="background: var(--forest-dark); padding: 5rem 4rem; text-align: center;">
+  <h2 style="color: white; margin-bottom: 1rem;">Ready to Find Your Calm?</h2>
+  <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem; font-size:1.05rem;">Book your first session today and take the first step to relaxation.</p>
+  <a href="{% if user.is_authenticated %}/book/{% else %}/register/{% endif %}" class="btn btn-lg" style="background:var(--gold); color:white;">
+    {% if user.is_authenticated %}Book Your Session{% else %}Create Free Account{% endif %}
+  </a>
+</section>
+
+{% endblock %}

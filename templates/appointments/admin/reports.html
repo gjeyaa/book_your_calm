@@ -1,0 +1,77 @@
+{% extends 'appointments/admin/base_admin.html' %}
+{% block title %}Reports{% endblock %}
+{% block nav_reports %}class="active"{% endblock %}
+{% block content %}
+<div style="margin-bottom:2rem;">
+  <h2>Reports & Analytics</h2>
+  <p class="text-muted">System performance and business insights</p>
+</div>
+
+<div class="stats-grid" style="margin-bottom:2rem;">
+  <div class="stat-card">
+    <div class="stat-card-icon">💰</div>
+    <div class="stat-card-value">₱{{ total_revenue|floatformat:"0" }}</div>
+    <div class="stat-card-label">Total Revenue</div>
+  </div>
+</div>
+
+<div class="grid-2" style="gap:2rem;">
+  <!-- Service Popularity -->
+  <div class="card">
+    <div class="card-header"><h3>Service Popularity</h3></div>
+    <div class="card-body" style="padding:0;">
+      <table>
+        <thead>
+          <tr><th>Service</th><th>Category</th><th>Bookings</th><th>Revenue</th></tr>
+        </thead>
+        <tbody>
+          {% for svc in service_stats %}
+          <tr>
+            <td style="font-weight:500;">{{ svc.name }}</td>
+            <td><span class="badge badge-confirmed" style="font-size:0.72rem;">{{ svc.get_category_display }}</span></td>
+            <td>{{ svc.booking_count }}</td>
+            <td>₱{{ svc.revenue|default:"0"|floatformat:"2" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center" style="padding:2rem; color:var(--text-muted);">No data yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Therapist Performance -->
+  <div class="card">
+    <div class="card-header"><h3>Therapist Performance</h3></div>
+    <div class="card-body" style="padding:0;">
+      <table>
+        <thead>
+          <tr><th>Therapist</th><th>Sessions</th><th>Avg Rating</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for t in therapist_stats %}
+          <tr>
+            <td style="font-weight:500;">{{ t.name }}</td>
+            <td>{{ t.session_count }}</td>
+            <td>
+              {% if t.avg_rating %}
+              <span style="color:var(--gold);">★</span> {{ t.avg_rating|floatformat:"1" }}
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if t.is_available %}
+              <span class="badge badge-completed">Available</span>
+              {% else %}
+              <span class="badge badge-cancelled">Unavailable</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center" style="padding:2rem; color:var(--text-muted);">No data yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

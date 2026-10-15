@@ -1,0 +1,70 @@
+{% extends 'appointments/admin/base_admin.html' %}
+{% block title %}Manage Clients{% endblock %}
+{% block nav_clients %}class="active"{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+  <div>
+    <h2>Clients</h2>
+    <p class="text-muted">Registered client accounts</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-body">
+    <form method="get" style="display:flex; gap:1rem; align-items:end;">
+      <div class="form-group" style="margin:0; flex:1;">
+        <label class="form-label">Search Clients</label>
+        <input type="text" name="search" class="form-control" value="{{ search }}" placeholder="Name or email...">
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+      <a href="/admin-panel/clients/" class="btn btn-outline">Clear</a>
+    </form>
+  </div>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr><th>Client</th><th>Email</th><th>Phone</th><th>Joined</th><th>Appointments</th></tr>
+    </thead>
+    <tbody>
+      {% for client in page_obj %}
+      <tr>
+        <td>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:var(--sage-pale);
+                        display:flex; align-items:center; justify-content:center; font-size:0.85rem;
+                        font-weight:500; color:var(--forest); flex-shrink:0;">
+              {{ client.first_name.0|upper }}{{ client.last_name.0|upper|default:"?" }}
+            </div>
+            <div>
+              <div style="font-weight:500;">{{ client.get_full_name|default:client.username }}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">@{{ client.username }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ client.email|default:"—" }}</td>
+        <td>
+          {% if client.userprofile %}{{ client.userprofile.phone|default:"—" }}
+          {% else %}—{% endif %}
+        </td>
+        <td style="font-size:0.85rem;">{{ client.date_joined|date:"M d, Y" }}</td>
+        <td>
+          <span class="badge badge-confirmed">{{ client.appt_count }} session{{ client.appt_count|pluralize }}</span>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center" style="padding:3rem; color:var(--text-muted);">No clients found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="page-btn">← Prev</a>{% endif %}
+  <span style="font-size:0.88rem; color:var(--text-muted);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="page-btn">Next →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

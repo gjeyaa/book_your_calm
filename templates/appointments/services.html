@@ -1,0 +1,39 @@
+{% extends 'appointments/base.html' %}
+{% block title %}Our Services{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Our Massage Services</h1>
+  <p>Choose from our curated wellness menu</p>
+</div>
+<div class="container section">
+  <div style="display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap;">
+    <a href="/services/" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+    <a href="/services/?category=relaxation" class="btn {% if selected_category == 'relaxation' %}btn-primary{% else %}btn-outline{% endif %}">Relaxation</a>
+    <a href="/services/?category=therapeutic" class="btn {% if selected_category == 'therapeutic' %}btn-primary{% else %}btn-outline{% endif %}">Therapeutic</a>
+    <a href="/services/?category=specialty" class="btn {% if selected_category == 'specialty' %}btn-primary{% else %}btn-outline{% endif %}">Specialty</a>
+  </div>
+  <div class="service-grid">
+    {% for service in services %}
+    <div class="service-card">
+      <div class="service-card-img">
+        {% if service.category == 'relaxation' %}🛁{% elif service.category == 'therapeutic' %}💆{% else %}✨{% endif %}
+      </div>
+      <div class="service-card-body">
+        <div class="service-card-category">{{ service.get_category_display }}</div>
+        <h3 style="margin:0.25rem 0 0.75rem;">{{ service.name }}</h3>
+        <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:1rem;">{{ service.description }}</p>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="service-card-price">₱{{ service.price }}</div>
+            <div class="service-duration">⏱ {{ service.duration_minutes }} min</div>
+          </div>
+          <a href="/book/?service={{ service.pk }}" class="btn btn-sage">Book</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="empty-state"><h3>No services in this category</h3></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
